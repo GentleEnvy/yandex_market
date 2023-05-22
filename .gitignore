@@ -10,6 +10,7 @@ staticfiles/
 logs/
 certs/
 profiles/
+user_data/
 
 
 ### python_gitignore template

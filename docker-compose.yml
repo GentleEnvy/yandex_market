@@ -2,13 +2,13 @@ version: '3.9'
 
 services:
   db:
-    image: postgres:14.2
+    image: postgres:15.2
     volumes:
       - db_volume:/var/lib/postgresql/data
     ports:
       - 5432:5432
     environment:
-      - POSTGRES_USER=user
+      - POSTGRES_USER=pg
       - POSTGRES_PASSWORD=password
       - POSTGRES_DB=db
       - POSTGRES_HOST=127.0.0.1
@@ -17,60 +17,58 @@ services:
       - db_network
     restart: unless-stopped
   redis:
-    image: redis:7.0.0
+    image: redis:7.0.11
     networks:
       - redis_network
     restart: unless-stopped
   api:
     build:
       context: .
-    command: bash -c "
-        python manage.py migrate &&
-        python manage.py collectstatic --noinput &&
-        python manage.py runserver 0.0.0.0:8000
-      "
     environment:
-      - DATABASE_URL=psql://user:password@db:5432/db
+      - DATABASE_URL=psql://pg:password@db:5432/db
       - REDIS_URL=redis://redis:6379/0
     env_file:
       - .env
     ports:
-      - 8000:8000
+      - 800:8000
     depends_on:
       - db
       - redis
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    privileged: true
     networks:
       - db_network
       - redis_network
     restart: unless-stopped
-  celery:
-    build:
-      context: .
-    command: celery -A api worker -c 1 -P gevent -l info
-    environment:
-      - DATABASE_URL=psql://user:password@db:5432/db
-      - REDIS_URL=redis://redis:6379/0
-    env_file:
-      - .env
-    networks:
-      - db_network
-      - redis_network
-    restart: unless-stopped
-  celery_beat:
-    build:
-      context: .
-    command: celery -A api beat -S django -l info
-    environment:
-      - DATABASE_URL=psql://user:password@db:5432/db
-      - REDIS_URL=redis://redis:6379/0
-    env_file:
-      - .env
-    depends_on:
-      - celery
-    networks:
-      - db_network
-      - redis_network
-    restart: unless-stopped
+#  celery:
+#    build:
+#      context: .
+#    command: celery -A api worker -c 1 -P gevent -l info
+#    environment:
+#      - DATABASE_URL=psql://pg:password@db:5432/db
+#      - REDIS_URL=redis://redis:6379/0
+#    env_file:
+#      - .env
+#    networks:
+#      - db_network
+#      - redis_network
+#    restart: unless-stopped
+#  celery_beat:
+#    build:
+#      context: .
+#    command: celery -A api beat -S django -l info
+#    environment:
+#      - DATABASE_URL=psql://pg:password@db:5432/db
+#      - REDIS_URL=redis://redis:6379/0
+#    env_file:
+#      - .env
+#    depends_on:
+#      - celery
+#    networks:
+#      - db_network
+#      - redis_network
+#    restart: unless-stopped
 
 volumes:
   db_volume:

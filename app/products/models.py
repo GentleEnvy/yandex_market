@@ -4,15 +4,8 @@ from app.base.models.base import BaseModel
 
 
 class Product(BaseModel):
-    url = models.URLField(unique=True)
+    url = models.URLField(unique=True, max_length=2000)
     name = models.TextField(blank=True, null=True)
-    
-    @property
-    def last_price(self) -> int | None:
-        product_price = ProductPrice.objects.order_by('-saved_at').first()
-        if product_price:
-            return product_price.price
-        return None
 
 
 class ProductPrice(BaseModel):

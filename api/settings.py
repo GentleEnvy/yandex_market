@@ -4,6 +4,7 @@ from datetime import timedelta
 import warnings
 
 # noinspection PyPackageRequirements
+import docker
 import environ
 
 # env
@@ -125,11 +126,6 @@ CACHES = {
 
 REDIS_URL = _default_cache['LOCATION']
 
-# chrome
-
-PATH_TO_CHROMEDRIVER = env('PATH_TO_CHROMEDRIVER')
-PATH_TO_GOOGLE_CHROME = env('PATH_TO_GOOGLE_CHROME')
-
 # email
 
 EMAIL_HOST: str | None = None
@@ -231,3 +227,10 @@ USE_I18N = True
 TIME_ZONE = 'UTC'
 USE_L10N = True
 USE_TZ = True
+
+# parser
+
+PARSER_IMAGE_NAME = 'yandex_market_parser'
+
+_client = docker.from_env()
+_client.images.build(path='parser', tag=PARSER_IMAGE_NAME)
