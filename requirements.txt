@@ -18,4 +18,5 @@ whitenoise==6.3.0
 celery==5.2.7
 gevent==22.10.2
 
-docker
+docker==6.1.2
+matplotlib==3.7.1

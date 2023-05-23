@@ -4,6 +4,8 @@ import random
 
 import undetected_chromedriver as uc
 
+CAPTCHA_STATUS = 42
+
 
 class Parser:
     def __init__(self):
@@ -23,6 +25,8 @@ class Parser:
             '1]/div/h3/span[2]',
         )
         self.max_tries = 3
+        self.captcha_title = 'Oops!'
+        self.wait_page_time = 3
 
         self.driver = uc.Chrome()
 
@@ -32,8 +36,8 @@ class Parser:
 
     def parse(self, url: str) -> tuple[str, int]:
         self.driver.get(url)
-        self.sleep(3)
-        if self.driver.title == 'Oops!':
+        self.sleep(self.wait_page_time)
+        if self.driver.title == self.captcha_title:
             raise PermissionError
         name = self._parse_name()
         price = self._parse_price()
@@ -65,7 +69,7 @@ def main():
         name, price = parser.parse(url)
         print(f"{name}::{price}")
     except PermissionError:
-        exit(-1)
+        exit(CAPTCHA_STATUS)
 
 
 if __name__ == '__main__':
