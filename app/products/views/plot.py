@@ -4,6 +4,7 @@ import matplotlib.pyplot as plt
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
+from app.base.utils import create_slug
 from app.products.models import Product, ProductPrice
 
 
@@ -14,7 +15,9 @@ class ProductsPlotView(GenericAPIView):
     def get(self, request, **_):
         content = self.generate_price_plot()
         response = Response(content_type='image/png')
-        response['Content-Disposition'] = 'attachment; filename="price_plot.png"'
+        response[
+            'Content-Disposition'
+        ] = f'attachment; filename="{create_slug(self.get_object().name)}_plot.png"'
         response.content = content
         return response
 

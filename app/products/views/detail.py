@@ -9,6 +9,7 @@ from app.products.services.product_parser import ProductParser
 class ProductView(ListModelMixin, GenericAPIView):
     def get(self, request, id):
         product = Product.objects.get(id=id)
+        i = 0
         product_parser = ProductParser()
         while True:
             for p in Product.objects.all():
@@ -18,6 +19,8 @@ class ProductView(ListModelMixin, GenericAPIView):
                         p.name = name
                         p.save()
                     ProductPrice.objects.create(product=p, price=price)
+                    print(i)
+                    i += 1
                 except product_parser.ParseException:
                     pass
         product_price = ProductPrice.objects.filter(product=product).last()

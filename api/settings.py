@@ -231,6 +231,3 @@ USE_TZ = True
 # parser
 
 PARSER_IMAGE_NAME = 'yandex_market_parser'
-
-_client = docker.from_env()
-_client.images.build(path='parser', tag=PARSER_IMAGE_NAME)

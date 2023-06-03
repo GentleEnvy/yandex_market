@@ -14,10 +14,10 @@ class ProductParser:
 
     def __init__(self):
         self.docker_client = docker.from_env()
-        self.max_tries = 3
-        self.inter_requests_time = 10
+        self.max_tries = 5
+        self.inter_requests_time = 80
         self.captcha_status = 42
-        self.captcha_wait = 30 * 60
+        self.captcha_wait = 60 * 60
 
     def sleep(self, sec: float) -> None:
         add_sec = random.uniform(sec * 0.01, sec * 0.1)
