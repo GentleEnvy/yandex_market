@@ -227,7 +227,3 @@ USE_I18N = True
 TIME_ZONE = 'UTC'
 USE_L10N = True
 USE_TZ = True
-
-# parser
-
-PARSER_IMAGE_NAME = 'yandex_market_parser'

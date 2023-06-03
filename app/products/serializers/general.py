@@ -14,8 +14,8 @@ class GETProductsSerializer(serializers.ModelSerializer):
 
     @extend_schema_field(OpenApiTypes.FLOAT)
     def get_last_price(self, obj):
-        latest_price = obj.productprice_set.order_by('-saved_at').first()
-        return latest_price.price if latest_price else None
+        last_price = obj.last_price
+        return last_price.price if last_price else None
 
 
 class POSTProductsSerializer(serializers.ModelSerializer):

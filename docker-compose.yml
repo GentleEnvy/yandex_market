@@ -23,6 +23,10 @@ services:
   api:
     build:
       context: .
+    command: bash -c "
+      python manage.py migrate
+      && python manage.py runserver 0.0.0.0:8000
+      "
     environment:
       - DATABASE_URL=psql://pg:password@db:5432/db
       - REDIS_URL=redis://redis:6379/0
@@ -33,11 +37,29 @@ services:
     depends_on:
       - db
       - redis
+    networks:
+      - api_network
+      - db_network
+      - redis_network
+    restart: unless-stopped
+  parser:
+    build:
+      context: .
+    command: bash -c "
+      docker build -t yandex_market_driver parser/driver &&
+      python parser/main.py
+      "
+    environment:
+      - PYTHONPATH=/api
+      - DATABASE_URL=psql://pg:password@db:5432/db
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     privileged: true
     networks:
-      - api_network
       - db_network
       - redis_network
     restart: unless-stopped

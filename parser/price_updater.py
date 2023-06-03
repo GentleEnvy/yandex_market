@@ -1,19 +1,19 @@
 import time
 import random
 
-from django.conf import settings
 import docker
 from docker.errors import ContainerError
 
 from app.products.models import Product
 
 
-class ProductParser:
+class PriceUpdater:
     class ParseException(Exception):
         pass
 
     def __init__(self):
         self.docker_client = docker.from_env()
+        self.driver_image = 'yandex_market_driver'
         self.max_tries = 5
         self.inter_requests_time = 80
         self.captcha_status = 42
@@ -23,13 +23,13 @@ class ProductParser:
         add_sec = random.uniform(sec * 0.01, sec * 0.1)
         time.sleep(sec + add_sec)
 
-    def parse(self, product: Product) -> tuple[str, int]:
+    def update(self, product: Product) -> tuple[str, int]:
         for i in range(self.max_tries):
             if i:
                 print(f"try: {i}")
             try:
                 logs = self.docker_client.containers.run(
-                    settings.PARSER_IMAGE_NAME,
+                    self.driver_image,
                     f'./start.sh "{product.url}"',
                     remove=True,
                 ).decode()
