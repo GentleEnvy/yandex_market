@@ -1,17 +1,18 @@
 import asyncio
-import time
+
+from dotenv import dotenv_values
 
 from bot import Bot
 
-TOKEN = '5488378527:AAGRkM9oVjEftmShfy1JrXnYh6nbVhQl3TQ'
+config = dotenv_values('.env')
+TOKEN = config['TOKEN']
+LOG_LEVEL = config.get('LOG_LEVEL', 0)
 
-bot = Bot(TOKEN)
+bot = Bot(TOKEN, LOG_LEVEL)
 
 
 async def main():
     await asyncio.create_task(bot.listen())
 
 
-print('run')
-time.sleep(5)
 asyncio.run(main())
