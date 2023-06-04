@@ -11,7 +11,7 @@ class SessionAuthentication(_SessionAuthentication):
 
 
 class SessionScheme(OpenApiAuthenticationExtension):
-    target_class = 'app.users.authentications.session.SessionAuthentication'
+    target_class = 'app.base.authentications.session.SessionAuthentication'
     name = 'Cookie'
     priority = -2
 

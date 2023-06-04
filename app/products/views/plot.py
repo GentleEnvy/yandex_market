@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
-from app.base.utils import create_slug
+from app.base.utils.common import create_slug
 from app.products.models import Product, ProductPrice
 
 
