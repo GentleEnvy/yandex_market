@@ -10,7 +10,6 @@ from rest_framework.response import Response
 from rest_framework.throttling import BaseThrottle
 
 from app.base.exceptions.handler import exception_handler
-from app.base.models.base import BaseModel
 from app.base.permissions.base import BasePermission
 from app.base.serializers.base import BaseSerializer
 from app.base.utils.common import status_by_method
@@ -64,9 +63,6 @@ class BaseView(GenericAPIView):
         serializer = self.get_serializer(*args, **kwargs)
         serializer.is_valid()
         return serializer
-
-    def get_object(self) -> BaseModel:
-        return super().get_object()
 
     def get_permission_classes(self) -> list[type[BasePermission]]:
         return self.permission_classes + self.permissions_map.get(self.method, [])
@@ -132,7 +128,7 @@ class BaseView(GenericAPIView):
 
     @classmethod
     def as_view(cls, **init_kwargs):
-        if cls.many:
+        if cls.many and ListModelMixin not in cls.__bases__:
             cls.__bases__ += (ListModelMixin,)
         cls._decorate_methods()
         return csrf_exempt(super().as_view(**init_kwargs))

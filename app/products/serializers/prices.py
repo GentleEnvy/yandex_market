@@ -1,9 +1,8 @@
-from rest_framework import serializers
-
+from app.base.serializers.base import BaseModelSerializer
 from app.products.models import ProductPrice
 
 
-class ProductPricesSerializer(serializers.ModelSerializer):
+class ProductPricesSerializer(BaseModelSerializer):
     class Meta:
         model = ProductPrice
-        fields = ['id', 'price', 'saved_at']
+        read_only_fields = ['id', 'price', 'saved_at']

@@ -1,13 +1,14 @@
-from rest_framework.generics import GenericAPIView
-from rest_framework.mixins import ListModelMixin
 from rest_framework.response import Response
 
+from app.base.views import BaseView
 from app.products.models import Product
 
 
-class ProductView(ListModelMixin, GenericAPIView):
-    def get(self, request, id):
-        product = Product.objects.get(id=id)
+class ProductView(BaseView):
+    queryset = Product.objects.all()
+
+    def get(self):
+        product = self.get_object()
         last_price = product.last_price
         return Response(
             data={

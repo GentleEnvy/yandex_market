@@ -1,18 +1,17 @@
 import io
 
 import matplotlib.pyplot as plt
-from rest_framework.generics import GenericAPIView
 from rest_framework.response import Response
 
 from app.base.utils.common import create_slug
+from app.base.views import BaseView
 from app.products.models import Product, ProductPrice
 
 
-class ProductsPlotView(GenericAPIView):
+class ProductsPlotView(BaseView):
     queryset = Product.objects.all()
-    lookup_field = 'id'
 
-    def get(self, request, **_):
+    def get(self):
         content = self.generate_price_plot()
         response = Response(content_type='image/png')
         response[
