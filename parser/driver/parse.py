@@ -6,71 +6,46 @@ import undetected_chromedriver as uc
 
 CAPTCHA_STATUS = 42
 
+name_xpaths = (
+    '/html/body/div[1]/div[2]/main/div[4]/div/div/div[2]/div/div/div[1]/div[1]/h1',
+    '/html/body/div[2]/div[2]/main/div[4]/div/div/div[2]/div/div/div[1]/div[1]/h1',
+    '/html/body/div[2]/div[2]/main/div[3]/div/div/div[2]/div/div/div[1]/div[1]/h1',
+)
+price_xpaths = (
+    '//*[@id="cardAddButton"]/div[1]/div/div/div/div/div[3]/div[1]/div/div/div[2]/span/span[1]',
+    '//*[@id="cardAddButton"]/div[1]/div/div/div/div/div[4]/div[1]/div/div[1]/div/h3/span[2]',
+)
+wait_page_time = 3
+captcha_title = 'Oops!'
 
-class Parser:
-    def __init__(self):
-        self.driver = None
-        self.name_xpaths = (
-            '/html/body/div[1]/div[2]/main/div[4]/div/div/div[2]/div/div/div[1]/div['
-            '1]/h1',
-            '/html/body/div[2]/div[2]/main/div[4]/div/div/div[2]/div/div/div[1]/div['
-            '1]/h1',
-            '/html/body/div[2]/div[2]/main/div[3]/div/div/div[2]/div/div/div[1]/div['
-            '1]/h1',
-        )
-        self.price_xpaths = (
-            '//*[@id="cardAddButton"]/div[1]/div/div/div/div/div[3]/div['
-            '1]/div/div/div[2]/span/span[1]',
-            '//*[@id="cardAddButton"]/div[1]/div/div/div/div/div[4]/div[1]/div/div['
-            '1]/div/h3/span[2]',
-        )
-        self.max_tries = 3
-        self.captcha_title = 'Oops!'
-        self.wait_page_time = 3
+options = uc.ChromeOptions()
+options.add_argument("--window-size=1280,800")
+options.add_argument("--disable-blink-features=AutomationControlled")
+driver = uc.Chrome(advanced_elements=True, options=options)
 
-        self.driver = uc.Chrome()
+url = sys.argv[1]
 
-    def sleep(self, sec: float) -> None:
-        add_sec = random.uniform(sec * 0.1, sec * 0.3)
-        time.sleep(sec + add_sec)
+driver.get(url)
+time.sleep(wait_page_time + random.uniform(wait_page_time * 0.1, wait_page_time * 0.3))
+if driver.title == captcha_title:
+    sys.exit(CAPTCHA_STATUS)
 
-    def parse(self, url: str) -> tuple[str, int]:
-        self.driver.get(url)
-        self.sleep(self.wait_page_time)
-        if self.driver.title == self.captcha_title:
-            raise PermissionError
-        name = self._parse_name()
-        price = self._parse_price()
-        return name, price
-
-    def _parse_name(self) -> str:
-        for name_xpath in self.name_xpaths:
-            try:
-                name_element = self.driver.find_elements('xpath', name_xpath)[0]
-                return name_element.text
-            except IndexError:
-                pass
-        return ''
-
-    def _parse_price(self) -> int:
-        for price_xpath in self.price_xpaths:
-            try:
-                price_element = self.driver.find_elements('xpath', price_xpath)[0]
-                return int(price_element.text.replace(' ', '').replace('\u2009', ''))
-            except (IndexError, ValueError):
-                pass
-        return 0
-
-
-def main():
-    parser = Parser()
-    url = sys.argv[1]
+name = ''
+for name_xpath in name_xpaths:
     try:
-        name, price = parser.parse(url)
-        print(f"{name}::{price}")
-    except PermissionError:
-        exit(CAPTCHA_STATUS)
+        name_element = driver.find_elements('xpath', name_xpath)[0]
+        name = name_element.text
+        break
+    except IndexError:
+        pass
 
+price = 0
+for price_xpath in price_xpaths:
+    try:
+        price_element = driver.find_elements('xpath', price_xpath)[0]
+        price = int(price_element.text.replace(' ', '').replace('\u2009', ''))
+        break
+    except (IndexError, ValueError):
+        pass
 
-if __name__ == '__main__':
-    main()
+print(f"{name}::{price}")

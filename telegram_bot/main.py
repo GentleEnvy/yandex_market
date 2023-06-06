@@ -6,9 +6,10 @@ from bot import Bot
 
 config = dotenv_values('.env')
 TOKEN = config['TOKEN']
+SECRET = config['SECRET']
 LOG_LEVEL = config.get('LOG_LEVEL', 0)
 
-bot = Bot(TOKEN, LOG_LEVEL)
+bot = Bot(TOKEN, SECRET, LOG_LEVEL)
 
 
 async def main():

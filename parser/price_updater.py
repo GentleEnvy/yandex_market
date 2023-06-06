@@ -1,8 +1,6 @@
+import subprocess
 import time
 import random
-
-import docker
-from docker.errors import ContainerError
 
 from app.products.models import Product
 
@@ -12,34 +10,43 @@ class PriceUpdater:
         pass
 
     def __init__(self):
-        self.docker_client = docker.from_env()
         self.driver_image = 'yandex_market_driver'
-        self.max_tries = 5
-        self.inter_requests_time = 80
+        self.max_tries = 1
+        self.inter_requests_time = 125
         self.captcha_status = 42
-        self.captcha_wait = 60 * 60
+        self.captcha_wait = 60 * 40
 
     def sleep(self, sec: float) -> None:
         add_sec = random.uniform(sec * 0.01, sec * 0.1)
         time.sleep(sec + add_sec)
 
     def update(self, product: Product) -> tuple[str, int]:
+        print(f"updating price for {product.name or product.id} ...")
         for i in range(self.max_tries):
-            if i:
-                print(f"try: {i}")
-            try:
-                logs = self.docker_client.containers.run(
-                    self.driver_image,
-                    f'./start.sh "{product.url}"',
-                    remove=True,
-                ).decode()
+            command = [
+                'docker',
+                'run',
+                '-t',
+                '--rm',
+                'yandex_market_driver',
+                './start.sh',
+                product.url,
+            ]
+            process = subprocess.Popen(
+                command, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+            )
+            stdout, stderr = process.communicate()
+            logs = stdout.decode()
+            status = process.returncode
+            if not status:
                 name, price = logs.splitlines()[-1].split('::')
+                print(f"{name}::{price}")
                 price = int(price)
                 if price:
                     self.sleep(self.inter_requests_time)
                     return name, price
-            except ContainerError as exc:
-                if exc.exit_status == self.captcha_status:
+            else:
+                if status == self.captcha_status:
                     print('Oops!')
                     self.sleep(self.captcha_wait)
                 else:

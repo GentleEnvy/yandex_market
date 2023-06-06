@@ -40,13 +40,14 @@ services:
       - api_network
       - db_network
       - redis_network
-    # restart: unless-stopped
+    restart: unless-stopped
   parser:
     build:
       context: .
     command: bash -c "
-      docker build -t yandex_market_driver parser/driver &&
-      python parser/main.py
+      sleep 5
+      && docker build -t yandex_market_driver parser/driver
+      && python parser/main.py
       "
     environment:
       - PYTHONPATH=/api
@@ -66,6 +67,10 @@ services:
   telegram_bot:
     build:
       context: telegram_bot
+    command: bash -c "
+      sleep 3
+      && python main.py
+      "
     depends_on: [ api ]
     networks: [ api_network ]
     restart: unless-stopped

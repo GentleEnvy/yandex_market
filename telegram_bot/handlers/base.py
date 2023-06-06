@@ -5,5 +5,5 @@ class BaseHandler(ABC):
     command: str
 
     @abstractmethod
-    def answer(self, args: str | None = None) -> tuple[str, dict]:
+    def answer(self, args: str | None, **kwargs) -> tuple[str, dict]:
         raise NotImplementedError

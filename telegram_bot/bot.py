@@ -2,16 +2,27 @@ import logging
 
 import telegram
 
+from handlers.add_product import AddProductHandler
+from handlers.del_product import DelProductHandler
+from services.api_requester import APIRequester
 from handlers.base import BaseHandler
 from handlers.get_plot import GetPlotHandler
 from handlers.get_products import GetProductsHandler
+from services.registerer import Registerer
 
 
 class Bot:
-    def __init__(self, token: str, log_level=0, **kwargs):
+    def __init__(self, token: str, secret: str, log_level=0, **kwargs):
         self._bot = telegram.Bot(token, **kwargs)
-        self.commands = self._collect_handlers(GetProductsHandler(), GetPlotHandler())
+        api_requester = APIRequester(secret=secret)
+        self.commands = self._collect_handlers(
+            GetProductsHandler(api_requester),
+            GetPlotHandler(api_requester),
+            AddProductHandler(api_requester),
+            DelProductHandler(api_requester),
+        )
         self.logger = self._create_logger(log_level)
+        self.registerer = Registerer()
 
     def _collect_handlers(self, *handlers: BaseHandler) -> dict[str, BaseHandler]:
         commands = {}
@@ -38,10 +49,15 @@ class Bot:
                 except telegram.error.TimedOut:
                     continue
                 for update in updates:
-                    logging.debug(f"{update = }")
-                    query = update.message.text
+                    self.logger.debug(f"{update = }")
                     try:
-                        answer_type, answer = self.get_answer(query)
+                        user_id = self.registerer.register(update)
+                        query = update.message.text
+                    except AttributeError:
+                        last_update_id = update.update_id + 1
+                        continue
+                    try:
+                        answer_type, answer = self.get_answer(query, user_id=user_id)
                         match answer_type:
                             case 'text':
                                 await update.message.chat.send_message(**answer)
@@ -50,11 +66,11 @@ class Bot:
                             case _:
                                 raise TypeError(f"Invalid answer_type: {answer_type}")
                     except Exception as exc:
-                        logging.error(f"{exc = }")
+                        self.logger.error(f"{exc = }")
                         await update.message.chat.send_message("Ой, всё сломалось")
                     last_update_id = update.update_id + 1
 
-    def get_answer(self, query: str) -> tuple[str, dict]:
+    def get_answer(self, query: str, **kwargs) -> tuple[str, dict]:
         query.rsplit()
         command, args = query.split(maxsplit=1) if ' ' in query else (query, None)
         try:
@@ -62,6 +78,6 @@ class Bot:
         except KeyError:
             return 'text', {'text': "Нет такой команды"}
         try:
-            return handler.answer(args)
+            return handler.answer(args, **kwargs)
         except ValueError:
             return 'text', {'text': "Неверные аргументы команды"}

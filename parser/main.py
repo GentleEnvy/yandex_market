@@ -10,14 +10,15 @@ def main():
     i = 0
     updater = PriceUpdater()
     while True:
-        for product in Product.objects.all():
+        for product in Product.objects.all().iterator(chunk_size=1):
             try:
                 name, price = updater.update(product)
-                if name:
-                    product.name = name
-                    product.save()
-                ProductPrice.objects.create(product=product, price=price)
-                print(i)  # FIXME: during the tests
+                if Product.objects.filter(id=product.id).exists():
+                    if name:
+                        product.name = name
+                        product.save()
+                    ProductPrice.objects.create(product=product, price=price)
+                print(f"iteration: {i}")  # FIXME: during the tests
                 i += 1
             except updater.ParseException:
                 pass
