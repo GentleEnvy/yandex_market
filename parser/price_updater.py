@@ -11,8 +11,8 @@ class PriceUpdater:
 
     def __init__(self):
         self.driver_image = 'yandex_market_driver'
-        self.max_tries = 1
-        self.inter_requests_time = 125
+        self.max_tries = 2
+        self.inter_requests_time = 130
         self.captcha_status = 42
         self.captcha_wait = 60 * 40
 

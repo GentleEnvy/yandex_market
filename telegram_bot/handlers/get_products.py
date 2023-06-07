@@ -4,11 +4,11 @@ from handlers.base import BaseHandler
 
 class GetProductsHandler(BaseHandler):
     command = '/list'
-    
+
     def __init__(self, api_requester: APIRequester):
         self.api_requester = api_requester
         self.default_count = 10
-    
+
     def answer(self, count, **kwargs):
         count = int(count) if count else self.default_count
         products = self.api_requester.get_products(page_size=count)['results']

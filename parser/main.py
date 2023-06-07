@@ -9,6 +9,7 @@ def main():
 
     i = 0
     updater = PriceUpdater()
+    # new since 11:37 07.06
     while True:
         for product in Product.objects.all().iterator(chunk_size=1):
             try:
