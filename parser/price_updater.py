@@ -3,7 +3,6 @@ import time
 import random
 
 from app.products.models import Product
-from parser.price_reduce_detector import PriceReduceDetector
 
 
 class PriceUpdater:

@@ -1,16 +1,15 @@
 import django
 
-from parser.price_reduce_detector import PriceReduceDetector
-
 
 def main():
     django.setup()
 
     from app.products.models import ProductPrice, Product
     from parser.price_updater import PriceUpdater
+    from parser.price_change_detector import PriceChangeDetector
 
     updater = PriceUpdater()
-    price_reduce_detector = PriceReduceDetector()
+    price_change_detector = PriceChangeDetector()
     # new since 11:37 07.06
     while True:
         for product in Product.objects.all().iterator(chunk_size=1):
@@ -21,9 +20,9 @@ def main():
                         product.name = name
                         product.save()
                     try:
-                        old, new = price_reduce_detector.detect_reduce(product, price)
+                        old, new = price_change_detector.detect(product, price)
                         print(f"{product.name}: {old, new}")  # FIXME: for test
-                    except price_reduce_detector.NoChangesError:
+                    except price_change_detector.NoChangesError:
                         print(f"{product.name}: no changes")  # FIXME: for test
                     ProductPrice.objects.create(product=product, price=price)
             except updater.ParseException:
