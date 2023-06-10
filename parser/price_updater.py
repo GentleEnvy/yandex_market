@@ -3,6 +3,7 @@ import time
 import random
 
 from app.products.models import Product
+from parser.price_reduce_detector import PriceReduceDetector
 
 
 class PriceUpdater:
@@ -12,7 +13,7 @@ class PriceUpdater:
     def __init__(self):
         self.driver_image = 'yandex_market_driver'
         self.max_tries = 2
-        self.inter_requests_time = 130
+        self.inter_requests_time = 135
         self.captcha_status = 42
         self.captcha_wait = 60 * 40
 
@@ -21,14 +22,13 @@ class PriceUpdater:
         time.sleep(sec + add_sec)
 
     def update(self, product: Product) -> tuple[str, int]:
-        print(f"updating price for {product.name or product.id} ...")
         for i in range(self.max_tries):
             command = [
                 'docker',
                 'run',
                 '-t',
                 '--rm',
-                'yandex_market_driver',
+                self.driver_image,
                 './start.sh',
                 product.url,
             ]
