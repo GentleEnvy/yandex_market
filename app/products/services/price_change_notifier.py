@@ -6,14 +6,14 @@ from app.users.models import User
 from parser.price_change_detector import PriceChangeDetector
 
 
-class PriceChangeNotifier:
+class PriceChangeComposer:
     def __init__(self):
         self.price_change_detector = PriceChangeDetector()
         self.product_manager = Product.objects
 
-    def notify_all(self) -> dict[User, dict[Product, dict[str, Any]]]:
+    def compose(self) -> dict[User, dict[Product, dict[str, Any]]]:
         notifications = defaultdict(dict)
-        changes = self.price_change_detector.get()  # FIXME: pop_all
+        changes = self.price_change_detector.pop_all()
         products = self.product_manager.filter(id__in=changes.keys()).prefetch_related(
             'users'
         )

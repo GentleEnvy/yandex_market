@@ -48,7 +48,7 @@ class PriceChangeDetector:
             'new_price': new_price,
             'changed_at': changed_at or datetime.now(),
         }
-        self.cacher.set(self.cache_key, changes)
+        self.cacher.set(self.cache_key, changes, timeout=24 * 60 * 60)
 
     def pop(self, product_id: int) -> dict[str, Any]:
         changes = self.get()

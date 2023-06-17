@@ -13,11 +13,10 @@ class DelProductHandler(BaseHandler):
         try:
             self.api_requester.del_product(product_id, user_id)
         except IndexError:
-            return 'text', {
-                'text': f"Вы не отслеживаете продукт с id _{product_id}_",
-                'parse_mode': 'Markdown',
-            }
-        return 'text', {
-            'text': f"Продукт с id _{product_id}_ был удалён",
-            'parse_mode': 'Markdown',
-        }
+            return 'text', {'text': f"""❌ Ошибочный ID товара !
+
+Вы не отслеживаете товар с ID: {product_id}.
+Пожалуйста, убедитесь в корректности введенного ID"""}
+        return 'text', {'text': """✅ Успешное удаление товара! ✅
+
+Товар с ID: {product_id} больше не отслеживается"""}

@@ -10,7 +10,6 @@ class AddProductHandler(BaseHandler):
 
     def answer(self, args: str, user_id: int = None, **kwargs):
         product_id = self.api_requester.post_products(args, user_id)
-        return 'text', {
-            'text': f"Продукт зарегистрирован под id _{product_id}_",
-            'parse_mode': 'Markdown',
-        }
+        return 'text', {'text': f"""🎯 Успешная регистрация товара ! 🎯
+
+Ваш товар теперь отслеживается под ID: {product_id}"""}

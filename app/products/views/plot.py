@@ -1,4 +1,6 @@
 import io
+from textwrap import wrap
+from datetime import datetime
 
 import matplotlib.pyplot as plt
 from rest_framework.response import Response
@@ -22,16 +24,22 @@ class ProductsPlotView(BaseView):
 
     def generate_price_plot(self):
         product = self.get_object()
-        prices = ProductPrice.objects.filter(product=product).order_by('saved_at')
+        prices = ProductPrice.objects.filter(
+            product=product, saved_at__gt=datetime(2023, 6, 7, 11, 37)  # FIXME
+        ).order_by('saved_at')
         plt.plot(
             [p.saved_at for p in prices],
             [p.price for p in prices],
             linestyle='-',
-            label='Price',
+            label="Цена",
         )
 
-        for p in prices:
-            plt.scatter(p.saved_at, p.price, color='blue', marker='o', s=3)
+        dates = [p.saved_at for p in prices]
+        prices_list = [p.price for p in prices]
+        date_range = max(dates) - min(dates)
+        padding = date_range * 0.02
+        plt.scatter(dates, prices_list, color='blue', marker='o', s=3)
+        plt.xlim(min(dates) - padding, datetime.now() + padding)
 
         change_indexes = [0]
         stable_price = prices[0].price
@@ -42,14 +50,25 @@ class ProductsPlotView(BaseView):
                 stable_price = current_price
         change_indexes.append(len(prices) - 1)
 
+        showed = set()
         for change_index in change_indexes:
             p = prices[change_index]
+            price = p.price
             plt.scatter(p.saved_at, p.price, color='red', marker='o')
-            plt.text(p.saved_at, p.price, str(p.price), ha='center', va='bottom')
+            plt.text(
+                p.saved_at,
+                p.price * 1.003,
+                '' if price in showed else str(price),
+                ha='center',
+                va='bottom',
+                fontdict={'size': 9},
+                color='darkred',
+            )
+            showed.add(price)
 
-        plt.xlabel('Time')
-        plt.ylabel('Price')
-        plt.title(product.name)
+        plt.xlabel("Время")
+        plt.ylabel("Цена")
+        plt.title('\n'.join(wrap(product.name, 60)))
         plt.xticks(rotation=45)
         plt.tight_layout()
 

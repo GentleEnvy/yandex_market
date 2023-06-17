@@ -1,3 +1,5 @@
+from typing import Any
+
 import requests
 
 
@@ -25,6 +27,8 @@ class APIRequester:
     def get_plot(self, product_id: int) -> bytes:
         url = f"{self.base_api_url}/products/{product_id}/plot/"
         response = self.requester.get(url)
+        if response.status_code == 404:
+            raise IndexError
         return response.content
 
     def post_products(self, product_url: str, user_id: int) -> int:
@@ -42,7 +46,14 @@ class APIRequester:
         if response.status_code != 204:
             raise Exception("Status code != 204")
 
-    def _get_headers(self, user_id: int) -> dict[str, str]:
+    def get_changes(self) -> list[dict[str, Any]]:
+        url = f"{self.base_api_url}/products/changes/"
+        changes = self.requester.get(url, headers=self._get_headers()).json()
+        return changes
+
+    def _get_headers(self, user_id: int = None) -> dict[str, str]:
         if not self.secret:
             raise PermissionError("Secret is empty")
-        return {self.auth_header: f"{self.auth_keyword} {self.secret} {user_id}"}
+        if user_id:
+            return {self.auth_header: f"{self.auth_keyword} {self.secret} {user_id}"}
+        return {self.auth_header: f"{self.auth_keyword} {self.secret}"}

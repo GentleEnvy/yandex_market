@@ -39,7 +39,7 @@ class PriceUpdater:
             status = process.returncode
             if not status:
                 name, price = logs.splitlines()[-1].split('::')
-                print(f"{name}::{price}")
+                print(f"{name} ({product.id}): {price}")
                 price = int(price)
                 if price:
                     self.sleep(self.inter_requests_time)

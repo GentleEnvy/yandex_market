@@ -14,7 +14,7 @@ class _GETProductsChanges_ChangesSerializer(BaseModelSerializer):
 
     class Meta:
         model = Product
-        read_only_fields = ['id', 'name', 'old_price', 'new_price', 'changed_at']
+        read_only_fields = ['id', 'name', 'url', 'old_price', 'new_price', 'changed_at']
 
 
 class GETProductsChangesSerializer(BaseModelSerializer):
