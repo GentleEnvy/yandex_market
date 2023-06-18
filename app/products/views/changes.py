@@ -7,8 +7,10 @@ from app.products.services.price_change_notifier import PriceChangeComposer
 
 
 class ProductsChangesView(BaseView):
+    many = True
     serializer_map = {'get': GETProductsChangesSerializer}
     permissions_map = {'get': [SuperuserPermission]}
+    pagination_class = None
 
     def get(self):
         price_change_composer = PriceChangeComposer()

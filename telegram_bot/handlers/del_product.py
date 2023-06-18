@@ -17,6 +17,6 @@ class DelProductHandler(BaseHandler):
 
 Вы не отслеживаете товар с ID: {product_id}.
 Пожалуйста, убедитесь в корректности введенного ID"""}
-        return 'text', {'text': """✅ Успешное удаление товара! ✅
+        return 'text', {'text': f"""✅ Успешное удаление товара! ✅
 
 Товар с ID: {product_id} больше не отслеживается"""}

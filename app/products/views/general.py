@@ -23,3 +23,6 @@ class ProductsView(BaseView):
         product = serializer.save()
         self.request.user.products.add(product)
         return Response(serializer.data, status=201)
+
+    def get_queryset(self):
+        return super().get_queryset().filter(users=self.request.user)

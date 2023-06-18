@@ -9,6 +9,8 @@ class AddProductHandler(BaseHandler):
         self.api_requester = api_requester
 
     def answer(self, args: str, user_id: int = None, **kwargs):
+        if not args:
+            raise ValueError
         product_id = self.api_requester.post_products(args, user_id)
         return 'text', {'text': f"""🎯 Успешная регистрация товара ! 🎯
 

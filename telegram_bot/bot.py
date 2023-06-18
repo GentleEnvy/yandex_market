@@ -4,6 +4,7 @@ import telegram
 
 from handlers.add_product import AddProductHandler
 from handlers.del_product import DelProductHandler
+from handlers.help import HelpHandler
 from services.api_requester import APIRequester
 from handlers.base import BaseHandler
 from handlers.get_plot import GetPlotHandler
@@ -16,11 +17,12 @@ class Bot:
     def __init__(self, token: str, secret: str, log_level=0, **kwargs):
         self._bot = telegram.Bot(token, **kwargs)
         self.api_requester = APIRequester(secret=secret)
-        self.commands = self._collect_handlers(
+        self.handlers = self._collect_handlers(
             GetProductsHandler(self.api_requester),
             GetPlotHandler(self.api_requester),
             AddProductHandler(self.api_requester),
             DelProductHandler(self.api_requester),
+            HelpHandler(),
         )
         self.logger = self._create_logger(log_level)
         self.registerer = Registerer()
@@ -77,13 +79,23 @@ class Bot:
         query.lstrip()
         command, args = query.split(maxsplit=1) if ' ' in query else (query, None)
         try:
-            handler = self.commands[command]
+            handler = self.handlers[command]
         except KeyError:
-            return 'text', {'text': "Нет такой команды !"}
+            return 'text', {
+                'text': (
+                    "Нет такой команды !\nИспользуйте команду /help для получения "
+                    "информации о том, как использовать команды"
+                )
+            }
         try:
             return handler.answer(args, **kwargs)
         except ValueError:
-            return 'text', {'text': "Неверные аргументы команды !"}
+            return 'text', {
+                'text': (
+                    "❌ Неверные аргументы команды !\nИспользуйте команду /help для "
+                    "получения информации о том, как использовать команды."
+                )
+            }
 
     async def check_notifications(self):
         changes = self.api_requester.get_changes()

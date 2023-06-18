@@ -24,9 +24,7 @@ class ProductsPlotView(BaseView):
 
     def generate_price_plot(self):
         product = self.get_object()
-        prices = ProductPrice.objects.filter(
-            product=product, saved_at__gt=datetime(2023, 6, 7, 11, 37)  # FIXME
-        ).order_by('saved_at')
+        prices = ProductPrice.objects.filter(product=product).order_by('saved_at')
         plt.plot(
             [p.saved_at for p in prices],
             [p.price for p in prices],
@@ -57,7 +55,7 @@ class ProductsPlotView(BaseView):
             plt.scatter(p.saved_at, p.price, color='red', marker='o')
             plt.text(
                 p.saved_at,
-                p.price * 1.003,
+                p.price,
                 '' if price in showed else str(price),
                 ha='center',
                 va='bottom',

@@ -1,5 +1,6 @@
 from rest_framework.response import Response
 
+from app.base.permissions.superuser import SuperuserPermission
 from app.base.views import BaseView
 from app.users.models import User
 from app.users.serializers.register.telegram import POSTUsersRegisterTelegramSerializer
@@ -7,6 +8,7 @@ from app.users.serializers.register.telegram import POSTUsersRegisterTelegramSer
 
 class UsersRegisterTelegramView(BaseView):
     serializer_map = {'post': POSTUsersRegisterTelegramSerializer}
+    permissions_map = {'post': [SuperuserPermission]}
 
     def post(self):
         serializer = self.get_valid_serializer()

@@ -20,9 +20,12 @@ class APIRequester:
         url = f"{self.base_api_url}/users/register/telegram/"
         self.requester.post(url, json=data)
 
-    def get_products(self, page: int = 1, page_size: int = 10) -> dict:
+    def get_products(self, user_id: int, page: int = 1, page_size: int = 10) -> dict:
         url = f"{self.base_api_url}/products/?{page=}&{page_size=}"
-        return self.requester.get(url).json()
+        response = self.requester.get(url, headers=self._get_headers(user_id))
+        if response.status_code == 404:
+            raise IndexError
+        return response.json()
 
     def get_plot(self, product_id: int) -> bytes:
         url = f"{self.base_api_url}/products/{product_id}/plot/"

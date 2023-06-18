@@ -10,10 +10,7 @@ def main():
 
     updater = PriceUpdater()
     price_change_detector = PriceChangeDetector()
-    # new since 11:37 07.06
     while True:
-        # time.sleep(10)
-        # price_change_detector.detect(Product.objects.order_by('?').first(), 1100)
         for product in Product.objects.order_by('?').iterator(chunk_size=1):
             try:
                 name, price = updater.update(product)

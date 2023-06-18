@@ -22,16 +22,19 @@ class GetProductsHandler(BaseHandler):
             return page, size
         raise ValueError
 
-    def answer(self, args, **kwargs):
+    def answer(self, args, user_id: int = None, **kwargs):
         page, size = self._parse_args(args)
-        product_data = self.api_requester.get_products(page=page, page_size=size)
+        try:
+            product_data = self.api_requester.get_products(user_id, page, size)
+        except IndexError:
+            return 'text', {'text': "Запрашиваемой страницы не существует !"}
         products = product_data['results']
         total_products = product_data['count']
         total_pages = -(-total_products // size)
         page_size_text = (
             f", размер страницы: {size}" if size != self.default_size else ""
         )
-        text = f"📖 Вы на странице: {page}{page_size_text} из {total_pages} 📖\n"
+        text = f"📖 Вы на странице: {page} из {total_pages}{page_size_text} 📖\n"
         text += f"🔎 Общее количество отслеживаемых товаров: {total_products} 🔎\n"
         text += (
             "🛍️ Ваш список отслеживаемых товаров: 🛍️\n\n_Товары и их текущие "
@@ -41,9 +44,9 @@ class GetProductsHandler(BaseHandler):
             id, name, url = product['id'], product['name'], product['url']
             last_price = product['last_price']
             if not name:
-                text += f"🔹 №{id} - _Название и цена товара обновляются..._"
+                text += f"🔹 №{id} - _Название и цена товара обновляются..._\n"
             elif not last_price:
-                text += f"🔹 №{id} - [{name}]({url}): _цена товара обновляется..._"
+                text += f"🔹 №{id} - [{name}]({url}): _цена товара обновляется..._\n"
             else:
                 text += f"🔹 №{id} - [{name}]({url}): *{last_price}* руб.\n"
         text += "\nСледите за изменениями цен и делайте выгодные покупки! 🎁"
